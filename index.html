@@ -352,7 +352,7 @@
 
   /* ===== Checklist: preenchimento rápido + modo celular vertical ===== */
   .ghead .gcnt{display:none}
-  @media (max-width:600px){
+  @media (max-width:600px), (orientation:landscape) and (max-height:600px){
     .ck-pane .lead{font-size:12px;margin:6px 4px 10px;line-height:1.45}
     .ck-pane .group{margin-bottom:10px}
     .ck-pane .ghead{display:flex;width:100%;padding:10px 12px;font-size:13px;border-radius:10px;gap:10px;box-shadow:0 1px 0 rgba(0,0,0,.06)}
@@ -379,6 +379,17 @@
     .ck-pane .popts.wrap .popt{flex:1 1 17%;justify-content:center}
     .ck-pane h3.sec{margin:14px 4px 8px}
     .ck-subtabs{padding-bottom:8px}
+  }
+
+  /* ===== Checklist: celular deitado (horizontal) — grupos em duas colunas ===== */
+  @media (orientation:landscape) and (max-height:600px){
+    main.wrap:has(.panel.active .ck-pane.active){max-width:none;padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right))}
+    .ck-pane.active{column-count:2;column-gap:14px}
+    .ck-pane .group{break-inside:avoid;-webkit-column-break-inside:avoid;display:inline-block;width:100%;vertical-align:top}
+    .ck-pane .lead,.ck-pane .banner,.ck-pane h3.sec{column-span:all;-webkit-column-span:all}
+    .ck-pane .banner.show{display:flex}
+    .ck-pane .popts{flex-direction:row;flex-wrap:wrap}
+    .ck-pane .popts .popt{flex:1 1 45%;width:auto}
   }
 
   /* ===== Painéis de apoio (preditores, CRASH, alertas) ===== */
