@@ -425,9 +425,27 @@
   .ck-sheet .popt .rad::after{width:6px;height:6px}
   .ck-sheet .popt .pt small{display:none}
   .ck-sheet .popts.wrap .popt{flex:0 1 auto;justify-content:flex-start}
-  .ck-walls{margin-top:8px}
-  .ck-walls h3.sec{margin:10px 4px 8px}
-  .ck-walls{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:4px 16px;align-items:start}
+  .ck-sh{width:100%;justify-content:flex-start;cursor:default}
+  .ck-sh .st{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ck-sh .wtag{border-color:#fff;color:#fff;background:rgba(255,255,255,.18)}
+  .sbox{width:17px;height:17px;border-radius:4px;border:2px solid rgba(255,255,255,.9);display:grid;place-items:center;flex:0 0 auto;cursor:pointer;position:relative}
+  .sbox::before,.ck-tg::before{content:"";position:absolute;inset:-9px}
+  .sbox svg{width:12px;height:12px;opacity:0}
+  .sbox.checked{background:#fff} .sbox.checked svg{opacity:1}
+  .ck-tg{margin-left:auto;border:none;background:rgba(255,255,255,.2);color:#fff;width:24px;height:22px;border-radius:6px;display:grid;place-items:center;cursor:pointer;padding:0;position:relative;flex:0 0 auto}
+  .ck-tg svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;transition:transform .18s}
+  .ck-sec.collapsed .ck-tg svg{transform:rotate(-90deg)}
+  .ck-sec.collapsed .ck-body{display:none}
+  .ck-sheet .picker.pend .plabel{color:var(--amber)}
+  .ck-sheet .picker.pend .plabel::after{content:'· escolha';text-transform:none;letter-spacing:0;font-weight:700}
+  .ck-sheet .picker.pend .popt{border-color:var(--amber)}
+  .ck-sec.collapsed .ck-sh{opacity:.92}
+  .ck-sec.ck-done .ck-sh{background:var(--teal-deep)}
+  .ck-wsec{margin-top:14px}
+  .ghead .rbox{cursor:pointer;position:relative} .ghead .rbox::before{content:"";position:absolute;inset:-8px}
+  .ghead .rbox.checked{background:#fff} .ghead .rbox.checked svg{opacity:1}
+  .ck-walls{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:4px 16px;align-items:start;margin-top:4px}
+  .ck-sec.collapsed .ck-walls{display:none}
   .ck-walls .banner,.ck-walls h3.sec{grid-column:1/-1}
   .ck-walls .group{margin-bottom:8px}
   .ck-walls ul.items{margin-top:5px}
@@ -437,7 +455,10 @@
   .ck-local h3.sec{margin-top:14px}
   @media (max-width:640px){
     .ck-sheet{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:"pac eq" "time dif";grid-template-rows:auto auto;gap:2px 12px}
-    .ck-sh{font-size:10.5px;padding:3px 8px;letter-spacing:.04em}
+    .ck-sh{font-size:10px;padding:5px 4px 5px 6px;letter-spacing:0;gap:4px}
+    .ck-sh .ck-tg{width:22px}
+    .ck-sheet .ck-sh .pre{display:none}
+    .ck-sh .n{padding:0 4px;font-size:9.5px}
     .ck-sheet .ghead{font-size:12.5px;min-height:26px}
     .ck-sheet .ghead .qs{font-size:11.5px;padding-left:0}
     .ck-sheet .itxt{font-size:12px}
@@ -985,11 +1006,12 @@ TABS.forEach((tb,ti)=>{
 
 function buildChecklist(){
   /* folha única: as quatro seções lado a lado, como o checklist impresso */
-  const TIT={paciente:'Preparar o paciente',equipamento:'Preparar o equipamento',time:'Preparar o time',dificuldades:'Preparar dificuldades'};
-  const secs=CHK.map(s=>`<div class="ck-sec ck-${s.id}" id="ckpane-${s.id}"><div class="ck-sh">${TIT[s.id]||s.label}<span class="n" id="ckn-${s.id}"></span></div>${renderChecklist(s,'core')}</div>`).join('');
+  const TIT={paciente:'<span class="pre">Preparar o </span>paciente',equipamento:'<span class="pre">Preparar o </span>equipamento',time:'<span class="pre">Preparar o </span>time',dificuldades:'<span class="pre">Preparar </span>dificuldades'};
+  const head=(id,t,extra='')=>`<div class="ck-sh"><span class="sbox" data-all="${id}" role="checkbox" aria-label="Marcar todos">${CKt}</span><span class="st">${t}</span>${extra}<span class="n" id="ckn-${id}"></span><button class="ck-tg" data-tg="${id}" aria-label="Recolher ou expandir"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button></div>`;
+  const secs=CHK.map(s=>`<div class="ck-sec ck-${s.id}" id="ckpane-${s.id}" data-sec="${s.id}">${head(s.id,TIT[s.id]||s.label)}<div class="ck-body">${renderChecklist(s,'core')}</div></div>`).join('');
   const dif=CHK.find(s=>s.id==='dificuldades');
   return `<div class="ck-sheet">${secs}</div>
-    <div class="ck-walls">${renderChecklist(dif,'walls')}</div>
+    <div class="ck-sec ck-wsec" id="ckpane-walls" data-sec="walls">${head('walls','Avaliação preditiva de dificuldade','<span class="wtag">Walls</span>')}<div class="ck-body ck-walls">${renderChecklist(dif,'walls')}</div></div>
     <div class="ck-local">
   <h3 class="sec">Local e plantão</h3>
   <div class="formcard">
@@ -1029,9 +1051,9 @@ function renderChecklist(sec,mode){
     const inWalls=sepAt>=0&&gi>=sepAt;
     if(mode==='core'&&inWalls) return;
     if(mode==='walls'&&!inWalls) return;
-    if(g.sep){ html+=`<h3 class="sec">${g.sep}<span class="wtag" style="border:none">Walls</span></h3>`; return; }
+    if(g.sep){ if(mode!=='walls') html+=`<h3 class="sec">${g.sep}<span class="wtag" style="border:none">Walls</span></h3>`; return; }
     html+=`<div class="group">`;
-    if(g.key){ html+=`<span class="ghead" data-info="${g.key}">${g.key} · ${g.name} <span class="gi" aria-label="Ver detalhes">ⓘ</span> <span class="wtag" style="border-color:#fff;color:#fff;background:rgba(255,255,255,.18)">Walls</span></span>`; }
+    if(g.key){ html+=`<span class="ghead" data-info="${g.key}"><span class="gbox rbox" role="checkbox" aria-label="Marcar todos do grupo">${CKt}</span>${g.key} · ${g.name} <span class="gi" aria-label="Ver detalhes">ⓘ</span> <span class="wtag" style="border-color:#fff;color:#fff;background:rgba(255,255,255,.18)">Walls</span></span>`; }
     else{ const hk=`${sec.id}.${gi}.head`; sec._tasks.push(hk); html+=`<span class="ghead" data-head="${hk}"><span class="gbox">${CKt}</span><span class="gt">${g.head}</span>${g.qs?`<span class="qs">${g.qs}</span>`:''}<span class="gcnt"></span></span>`; }
     if(g.items&&g.items.length){ html+=`<ul class="items">`; const wf=wideFlags(g.items); g.items.forEach((it,ii)=>{ const k=`${sec.id}.${gi}.${ii}`; if(!g.risk) sec._tasks.push(k);
       html+=`<li class="item ${g.risk?'risk':''}${wf[ii]?' w2':''}" data-key="${k}"><span class="box">${CK}</span><span class="itxt">${it.b?`<b>${it.b}</b>`:''}${it.t}${it.s?`<span class="s">${it.s}</span>`:''}</span></li>`; }); html+=`</ul>`; }
@@ -1132,6 +1154,22 @@ document.addEventListener('input',e=>{
 
 /* ---------- interactions ---------- */
 panelsEl.addEventListener('click',e=>{
+  /* recolher / expandir seção */
+  const tg=e.target.closest('.ck-tg');
+  if(tg){ const sec=tg.closest('.ck-sec'); const c=sec.classList.toggle('collapsed');
+    try{ const k='omni_ck_collapsed', m=JSON.parse(localStorage.getItem(k)||'{}'); m[sec.dataset.sec]=c; localStorage.setItem(k,JSON.stringify(m)); }catch(_){}
+    return; }
+  /* marcar todos da seção */
+  const sb=e.target.closest('.sbox[data-all]');
+  if(sb){ const sec=sb.closest('.ck-sec'); const els=[...sec.querySelectorAll('li.item[data-key],.ghead[data-head]')];
+    const nv=!els.every(x=>state[x.dataset.key||x.dataset.head]);
+    els.forEach(x=>{ const k=x.dataset.key||x.dataset.head; state[k]=nv; x.classList.toggle('checked',nv); });
+    if(navigator.vibrate) navigator.vibrate(12); update(); return; }
+  /* marcar todos de um grupo da avaliação preditiva (LEMON, ROMAN…) */
+  const rb=e.target.closest('.rbox');
+  if(rb){ const lis=[...rb.closest('.group').querySelectorAll('li.item')]; const nv=!lis.every(x=>state[x.dataset.key]);
+    lis.forEach(x=>{ state[x.dataset.key]=nv; x.classList.toggle('checked',nv); });
+    if(navigator.vibrate) navigator.vibrate(8); update(); return; }
   const inf=e.target.closest('[data-info]'); if(inf){ ipInfo(inf.dataset.info); return; }
   const opt=e.target.closest('.popt');
   if(opt){ const pk=opt.dataset.pick, idx=+opt.dataset.idx;
@@ -1314,6 +1352,11 @@ function update(){
   CHK.forEach(sec=>{ const st=(sec._tasks||[]).length, sd=(sec._tasks||[]).filter(k=>state[k]).length;
     const nEl=document.getElementById('ckn-'+sec.id), tabEl=document.querySelector('#ckSub [data-ck="'+sec.id+'"]');
     if(nEl) nEl.textContent=sd+'/'+st; if(tabEl) tabEl.classList.toggle('done',sd===st&&st>0); total+=st; done+=sd; });
+  document.querySelectorAll('.ck-sec').forEach(sec=>{ const els=[...sec.querySelectorAll('li.item[data-key],.ghead[data-head]')], b=sec.querySelector('.sbox');
+    const all=els.length>0&&els.every(x=>state[x.dataset.key||x.dataset.head]); if(b) b.classList.toggle('checked',all); if(sec.dataset.sec!=='walls') sec.classList.toggle('ck-done',all);
+    sec.querySelectorAll('.picker').forEach(pk=>{ const on=pk.querySelector('.popt.sel'); pk.classList.toggle('pend',all&&!on); }); });
+  const wn=document.getElementById('ckn-walls'); if(wn){ const wl=[...document.querySelectorAll('#ckpane-walls li.item')]; wn.textContent=wl.filter(x=>state[x.dataset.key]).length+'/'+wl.length; }
+  document.querySelectorAll('.rbox').forEach(b=>{ const lis=[...b.closest('.group').querySelectorAll('li.item')]; b.classList.toggle('checked',lis.length>0&&lis.every(x=>state[x.dataset.key])); });
   document.querySelectorAll('.group').forEach(g=>{ const c=g.querySelector('.gcnt'), lis=g.querySelectorAll('li.item'); if(!c) return;
     c.textContent = lis.length ? [...lis].filter(x=>state[x.dataset.key]).length+'/'+lis.length : ''; });
   let flagged=0; CHK.find(s=>s.id==='dificuldades').groups.forEach((g,gi)=>{ if(g.risk)(g.items||[]).forEach((it,ii)=>{ if(state[`dificuldades.${gi}.${ii}`]) flagged++; }); });
@@ -1719,6 +1762,7 @@ const _rb=document.getElementById('resetBtn'); if(_rb) _rb.onclick=()=>{
 const _db=document.getElementById('doubtBtn'); if(_db) _db.onclick=()=>_db.animate([{transform:'scale(1)'},{transform:'scale(.97)'},{transform:'scale(1)'}],{duration:180});
 
 initAuth();
+try{ const m=JSON.parse(localStorage.getItem('omni_ck_collapsed')||'{}'); for(const k in m) if(m[k]){ const el=document.querySelector('.ck-sec[data-sec="'+k+'"]'); if(el) el.classList.add('collapsed'); } }catch(_){}
 update();
 renderInfusion();
 renderOmni();
