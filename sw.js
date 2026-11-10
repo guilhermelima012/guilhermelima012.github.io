@@ -1,4 +1,4 @@
-const CACHE = 'omni-iot-v9';
+const CACHE = 'omni-iot-v10';
 const PRECACHE = ['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png', 'icon-512-maskable.png',
   'flow-universal.jpg', 'flow-difficult.jpg', 'flow-failed.jpg', 'flow-cardiac.jpg'];
 
